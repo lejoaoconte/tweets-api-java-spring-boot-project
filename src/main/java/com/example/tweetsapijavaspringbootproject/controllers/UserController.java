@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,12 +40,24 @@ public class UserController {
   }
 
   @GetMapping(value = "/user/{id}")
-  public ResponseEntity<UserModel> getUser(@PathVariable(value = "id") UUID id) {
+  public ResponseEntity<Object> getUser(@PathVariable(value = "id") UUID id) {
     Optional<UserModel> user = userRepository.findById(id);
     if (user.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
     return ResponseEntity.status(HttpStatus.OK).body(user.get());
+  }
+
+  @PutMapping(value = "/user/{id}")
+  public ResponseEntity<Object> updateUser(@PathVariable(value = "id") UUID id,
+      @RequestBody @Valid UserRecordDto userRecordDto) {
+    Optional<UserModel> user = userRepository.findById(id);
+    if (user.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+    var userModel = user.get();
+    BeanUtils.copyProperties(userRecordDto, userModel);
+    return ResponseEntity.status(HttpStatus.OK).body(userRepository.save(userModel));
   }
 
 }
