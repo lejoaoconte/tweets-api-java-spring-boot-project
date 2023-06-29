@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 public class UserController {
 
@@ -38,7 +41,15 @@ public class UserController {
 
   @GetMapping(value = "/user")
   public ResponseEntity<List<UserModel>> getAllUsers() {
-    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
+    List<UserModel> users = userRepository.findAll();
+    if (!users.isEmpty()) {
+      for (UserModel user : users) {
+        UUID id = user.getIdUser();
+        user.add(linkTo(methodOn(UserController.class).getUser(id)).withSelfRel());
+      }
+
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(users);
   }
 
   @GetMapping(value = "/user/{id}")
@@ -47,6 +58,7 @@ public class UserController {
     if (user.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
+    user.get().add(linkTo(methodOn(UserController.class).getAllUsers()).withRel("All users"));
     return ResponseEntity.status(HttpStatus.OK).body(user.get());
   }
 

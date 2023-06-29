@@ -3,6 +3,8 @@ package com.example.tweetsapijavaspringbootproject.models;
 import java.io.Serializable;
 import java.util.UUID;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class UserModel implements Serializable {
+public class UserModel extends RepresentationModel<UserModel> implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @Id
