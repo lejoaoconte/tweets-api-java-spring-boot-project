@@ -18,6 +18,8 @@ import com.example.tweetsapijavaspringbootproject.models.UserModel;
 import com.example.tweetsapijavaspringbootproject.repositories.UserRepository;
 
 import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -58,6 +60,17 @@ public class UserController {
     var userModel = user.get();
     BeanUtils.copyProperties(userRecordDto, userModel);
     return ResponseEntity.status(HttpStatus.OK).body(userRepository.save(userModel));
+  }
+
+  @DeleteMapping(value = "/user/{id}")
+  public ResponseEntity<Object> deleteUser(@PathVariable(value = "id") UUID id) {
+    Optional<UserModel> user = userRepository.findById(id);
+    if (user.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    userRepository.delete(user.get());
+    return ResponseEntity.status(HttpStatus.OK).body("User deleted");
   }
 
 }
